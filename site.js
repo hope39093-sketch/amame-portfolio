@@ -15,5 +15,6 @@ async function loadData(def){
     Object.assign(d,a.data.data||{});
     if(b.data.length){d.illust=[];d.model=[];b.data.forEach(w=>d[w.type].push({id:w.id,title:w.title,image:w.image_url,category:w.category}));}
   }catch(e){console.error(e);d._err=true;}
+  d.flow=(d.flow||[]).map(x=>Array.isArray(x)?x:[x,""]);
   return d;
 }

@@ -37,18 +37,18 @@ function render(){
 $("name").value=d.name;$("role").value=d.role;$("bio").value=d.bio;$("social").value=d.social;$("contact").value=d.contact||"";
 ["illust","model"].forEach(k=>["work","sample"].forEach(c=>$(k+"_"+c).innerHTML=d[k].map((x,i)=>[x,i]).filter(([x])=>(x.category||"sample")===c).map(([x,i])=>`<div class="item work">${x.image?`<img class="thumb" src="${esc(x.image)}">`:'<div class="thumb"></div>'}<input data-a="${k}" data-i="${i}" value="${esc(x.title)}"><button onclick="mv('${k}',${i},-1)">↑</button><button onclick="mv('${k}',${i},1)">↓</button><button onclick="pick('${k}',${i})">画像変更</button><button onclick="mvCat('${k}',${i})">${c==="work"?"サンプルへ":"実績へ"}</button><button onclick="del('${k}',${i})">削除</button></div>`).join("")||'<p class="small">まだありません</p>'));
 $("prices").innerHTML=d.price.map((x,i)=>`<div class="item"><input data-p="${i}" value="${esc(x[0])}" placeholder="メニュー"><input data-p="${i}" data-c="1" value="${esc(x[1])}" placeholder="料金"><input data-p="${i}" data-c="2" value="${esc(x[2])}" placeholder="備考"><button onclick="collect();d.price.splice(${i},1);render()">削除</button></div>`).join("");
-$("flows").innerHTML=d.flow.map((x,i)=>`<div class="item"><input data-f="${i}" value="${esc(x)}"><button onclick="collect();d.flow.splice(${i},1);render()">削除</button></div>`).join("");
+$("flows").innerHTML=d.flow.map((x,i)=>`<div class="item"><input data-f="${i}" value="${esc(x[0])}" placeholder="タイトル"><textarea data-f="${i}" data-c="1" placeholder="説明（短い文章）">${esc(x[1])}</textarea><button onclick="collect();d.flow.splice(${i},1);render()">削除</button></div>`).join("");
 $("template").value=d.template;$("guidebox").innerHTML=d.guide?`<img class="thumb" style="width:140px;height:auto" src="${esc(d.guide)}">`:'<p class="small">未設定</p>';$("terms").value=d.terms;
 $("faqs").innerHTML=d.faq.map((x,i)=>`<div class="item"><input data-q="${i}" value="${esc(x[0])}" placeholder="質問"><input data-q="${i}" data-c="1" value="${esc(x[1])}" placeholder="回答"><button onclick="collect();d.faq.splice(${i},1);render()">削除</button></div>`).join("");}
 function collect(){d.name=$("name").value;d.role=$("role").value;d.bio=$("bio").value;d.social=$("social").value;d.contact=$("contact").value;
 document.querySelectorAll("input[data-a]").forEach(e=>d[e.dataset.a][e.dataset.i].title=e.value);
 document.querySelectorAll("input[data-p]").forEach(e=>d.price[e.dataset.p][e.dataset.c||0]=e.value);
-document.querySelectorAll("input[data-f]").forEach(e=>d.flow[e.dataset.f]=e.value);
+document.querySelectorAll("[data-f]").forEach(e=>d.flow[e.dataset.f][e.dataset.c||0]=e.value);
 document.querySelectorAll("input[data-q]").forEach(e=>d.faq[e.dataset.q][e.dataset.c||0]=e.value);
 d.template=$("template").value;d.terms=$("terms").value}
 function pickGuide(){chooser(false,async([f])=>{collect();msg("アップロード中…");try{d.guide=await upload("guide",f);render();msg("画像を設定しました。「変更を保存」を押してください。")}catch(e){msg("失敗しました："+e.message)}})}
 function addPrice(){collect();d.price.push(["新しいメニュー","¥0",""]);render()}
-function addFlow(){collect();d.flow.push("新しい工程");render()}
+function addFlow(){collect();d.flow.push(["新しい工程",""]);render()}
 function addFaq(){collect();d.faq.push(["新しい質問","回答"]);render()}
 function mv(k,i,s){collect();const c=d[k][i].category;let j=i+s;while(d[k][j]&&d[k][j].category!==c)j+=s;if(!d[k][j])return;[d[k][i],d[k][j]]=[d[k][j],d[k][i]];render();msg("順番を変えました。「変更を保存」を押してください。")}
 function mvCat(k,i){collect();const x=d[k][i];x.category=x.category==="work"?"sample":"work";render();msg("移動しました。「変更を保存」を押してください。")}
