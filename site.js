@@ -17,6 +17,9 @@ async function loadData(def){
   }catch(e){console.error(e);d._err=true;}
   d.flow=(d.flow||[]).map(x=>Array.isArray(x)?x:[x,""]);
   if(!Array.isArray(d.terms))d.terms=String(d.terms||"").split(/^(?=【)/m).filter(x=>x.trim()).map(x=>{const m=x.match(/^【(.*?)】\s*([\s\S]*)$/);return m?[m[1],m[2].trim()]:["規約",x.trim()]});
+  if(d.price.length&&Array.isArray(d.price[0])){const g=[],f=t=>g.find(x=>x.t===t)||(g.push({t,v:[],o:[]}),g[g.length-1]);
+    d.price.forEach(x=>{if(/^\s*\+/.test(x[1]))f("追加料金・オプション").o.push(x);else{const m=x[0].match(/^(.*?)[（(](.*)[）)]$/);m?f(m[1]).v.push([m[2],x[1],x[2]]):f(x[0]).v.push(x)}});d.price=g}
+  d.price=d.price.map(g=>({t:g.t||"",v:g.v||[],o:g.o||[]}));
   ["movies","story","soul"].forEach(k=>d[k]=(d[k]||[]).map(x=>[x[0],x[1],x[2]||"",x[3]||""]));
   return d;
 }
