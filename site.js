@@ -13,7 +13,7 @@ async function loadData(def){
     ]);
     if(a.error||b.error)throw (a.error||b.error);
     Object.assign(d,a.data.data||{});
-    if(b.data.length){d.illust=[];d.model=[];b.data.forEach(w=>d[w.type].push({id:w.id,title:w.title,image:w.image_url,category:w.category}));}
+    if(b.data.length){d.illust=[];d.model=[];b.data.forEach(w=>d[w.type].push({id:w.id,title:w.title,image:w.image_url,thumb:w.thumb_url||"",category:w.category,date:w.updated_at?new Date(w.updated_at).toLocaleDateString("ja-JP",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"}):""}));}
   }catch(e){console.error(e);d._err=true;}
   d.flow=(d.flow||[]).map(x=>Array.isArray(x)?x:[x,""]);
   if(!Array.isArray(d.terms))d.terms=String(d.terms||"").split(/^(?=【)/m).filter(x=>x.trim()).map(x=>{const m=x.match(/^【(.*?)】\s*([\s\S]*)$/);return m?[m[1],m[2].trim()]:["規約",x.trim()]});
@@ -27,5 +27,9 @@ async function loadData(def){
 function media(x){const v=x[3]||"",y=v.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/);
   if(y)return `<div style="aspect-ratio:16/9"><iframe src="https://www.youtube-nocookie.com/embed/${y[1]}" allowfullscreen loading="lazy" style="width:100%;height:100%;border:0;border-radius:12px"></iframe></div>`;
   if(v)return `<video src="${esc(v)}" poster="${esc(x[2])}" controls playsinline loop muted style="width:100%;border-radius:12px;background:#000"></video>`;
-  return x[2]?`<img src="${esc(x[2])}" alt="" style="width:100%;border-radius:12px;display:block">`:""}
+  return x[2]?`<img src="${esc(x[2])}" data-full="${esc(x[2])}" onclick="openBox(this.dataset.full)" alt="" style="width:100%;border-radius:12px;display:block;cursor:zoom-in">`:""}
 function cards(a){return a.map(x=>`<article style="border:1px solid #eee6eb;border-radius:14px;background:#fff;padding:16px;margin-bottom:16px">${media(x)}<b style="font-weight:500;display:block;margin-top:12px">${esc(x[0])}</b><p style="margin:5px 0 0;color:#a79da8;font-size:13px;line-height:1.8;white-space:pre-wrap">${esc(x[1])}</p></article>`).join("")}
+// お問い合わせボタン：メールアドレスなら mailto、https:// から始まるURLなら、そのURLを新しいタブで開く
+function setContact(c){const a=document.getElementById("contact");if(!a||!c)return;const u=/^https?:\/\//.test(c);a.href=u?c:"mailto:"+c;if(u){a.target="_blank";a.rel="noopener"}}
+// 画像をタップすると、元の比率のまま大きく表示
+function openBox(u){const b=document.createElement("div");b.style.cssText="position:fixed;inset:0;background:rgba(20,15,20,.9);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out";b.innerHTML=`<img src="${esc(u)}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px">`;b.onclick=()=>b.remove();document.body.appendChild(b)}
